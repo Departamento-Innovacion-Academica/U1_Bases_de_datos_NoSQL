@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teorema CAP - Flip Cards Interactivas</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Font - Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f5f6ff 0%, #edeefc 100%);
+    }
+
+    /* 3D Flip Card Styles */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .transform-style-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .backface-hidden {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
+
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    /* Floating Tooltip Animation */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* Soft Glow Effect */
+    .glow-effect {
+      box-shadow: 0 10px 30px -5px rgba(124, 115, 230, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .glow-effect:hover {
+      box-shadow: 0 20px 35px -5px rgba(124, 115, 230, 0.25), 0 8px 18px -2px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Speech Bubble Arrow */
+    .speech-arrow {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 10px solid #ffffff;
+      filter: drop-shadow(0 2px 2px rgba(0,0,0,0.05));
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center p-4 sm:p-8">
+
+  <main class="w-full max-w-6xl flex flex-col items-center">
+    
+    <!-- Floating Instruction Box (Tooltip / Banner) -->
+    <div class="relative mb-12 sm:mb-16 animate-float z-20">
+      <div class="bg-white/90 backdrop-blur-md border border-indigo-100 shadow-xl rounded-2xl px-6 py-4 flex items-center gap-3 text-slate-800">
+        <i class="fa-solid fa-hand-pointer text-indigo-600 text-xl animate-bounce"></i>
+        <p class="font-semibold text-base sm:text-lg tracking-tight text-slate-700">
+          Haga clic sobre las tarjetas para ampliar la información.
+        </p>
+      </div>
+      <!-- Speech bubble indicator pointer -->
+      <div class="speech-arrow"></div>
+    </div>
+
+    <!-- Grid of Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full">
+
+      <!-- CARD 1: Consistencia (C) -->
+      <div class="perspective-1000 w-full h-[320px] cursor-pointer group" onclick="flipCard(this)">
+        <div class="flip-card-inner transform-style-3d relative w-full h-full rounded-2xl bg-white border border-slate-200/80 glow-effect transition-all duration-300">
+          
+          <!-- FRONT -->
+          <div class="backface-hidden absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-white">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xl shadow-sm">
+                1
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug">
+                Consistencia (C):
+              </h2>
+            </div>
+            
+            <div class="w-full pt-4 border-t border-slate-100 flex justify-between items-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+              <span class="text-xs font-semibold uppercase tracking-wider">Ver detalles</span>
+              <i class="fa-solid fa-arrow-rotate-right text-sm"></i>
+            </div>
+          </div>
+
+          <!-- BACK -->
+          <div class="backface-hidden rotate-y-180 absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-slate-900 text-white shadow-2xl">
+            <div class="w-full">
+              <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Concepto 1</span>
+                <i class="fa-solid fa-check-circle text-indigo-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-indigo-200 mb-3">Consistencia (C)</h3>
+              <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
+                Todos los nodos observan la misma versión más reciente del dato después de una actualización. Un usuario no debería leer información antigua o desactualizada.
+              </p>
+            </div>
+
+            <div class="w-full pt-3 flex justify-end items-center text-xs text-slate-400">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Volver</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CARD 2: Disponibilidad (A) -->
+      <div class="perspective-1000 w-full h-[320px] cursor-pointer group" onclick="flipCard(this)">
+        <div class="flip-card-inner transform-style-3d relative w-full h-full rounded-2xl bg-white border border-slate-200/80 glow-effect transition-all duration-300">
+          
+          <!-- FRONT -->
+          <div class="backface-hidden absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-white">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xl shadow-sm">
+                2
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug">
+                Disponibilidad (A):
+              </h2>
+            </div>
+            
+            <div class="w-full pt-4 border-t border-slate-100 flex justify-between items-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+              <span class="text-xs font-semibold uppercase tracking-wider">Ver detalles</span>
+              <i class="fa-solid fa-arrow-rotate-right text-sm"></i>
+            </div>
+          </div>
+
+          <!-- BACK -->
+          <div class="backface-hidden rotate-y-180 absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-slate-900 text-white shadow-2xl">
+            <div class="w-full">
+              <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Concepto 2</span>
+                <i class="fa-solid fa-bolt text-indigo-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-indigo-200 mb-3">Disponibilidad (A)</h3>
+              <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
+                Cada solicitud recibe una respuesta, aunque no necesariamente contenga el dato más reciente. El sistema continúa atendiendo peticiones.
+              </p>
+            </div>
+
+            <div class="w-full pt-3 flex justify-end items-center text-xs text-slate-400">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Volver</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CARD 3: Tolerancia a particiones (P) -->
+      <div class="perspective-1000 w-full h-[320px] cursor-pointer group" onclick="flipCard(this)">
+        <div class="flip-card-inner transform-style-3d relative w-full h-full rounded-2xl bg-white border border-slate-200/80 glow-effect transition-all duration-300">
+          
+          <!-- FRONT -->
+          <div class="backface-hidden absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-white">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-xl shadow-sm">
+                3
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-800 leading-snug">
+                Tolerancia a particiones (P):
+              </h2>
+            </div>
+            
+            <div class="w-full pt-4 border-t border-slate-100 flex justify-between items-center text-slate-400 group-hover:text-indigo-600 transition-colors">
+              <span class="text-xs font-semibold uppercase tracking-wider">Ver detalles</span>
+              <i class="fa-solid fa-arrow-rotate-right text-sm"></i>
+            </div>
+          </div>
+
+          <!-- BACK -->
+          <div class="backface-hidden rotate-y-180 absolute inset-0 p-8 flex flex-col justify-between items-start rounded-2xl bg-slate-900 text-white shadow-2xl">
+            <div class="w-full">
+              <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">Concepto 3</span>
+                <i class="fa-solid fa-network-wired text-indigo-400"></i>
+              </div>
+              <h3 class="text-lg font-bold text-indigo-200 mb-3">Tolerancia a particiones (P)</h3>
+              <p class="text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
+                El sistema sigue operando aunque existan fallos o pérdida de comunicación entre nodos distribuidos.
+              </p>
+            </div>
+
+            <div class="w-full pt-3 flex justify-end items-center text-xs text-slate-400">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-rotate-left"></i> Volver</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    /**
+     * Flips the clicked card by toggling the 'rotate-y-180' class
+     * @param {HTMLElement} cardElement - The outer card wrapper element
+     */
+    function flipCard(cardElement) {
+      const innerCard = cardElement.querySelector('.flip-card-inner');
+      if (innerCard) {
+        innerCard.classList.toggle('rotate-y-180');
+      }
+    }
+  </script>
+
+</body>
+</html>
