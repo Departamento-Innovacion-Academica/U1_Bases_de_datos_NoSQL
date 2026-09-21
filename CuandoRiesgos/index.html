@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo BASE en NoSQL - Tema Claro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #f4f6fb;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --accent-purple: #6366f1;
+            --accent-hover: #4f46e5;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --modal-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-light);
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 80px 20px 40px;
+            box-sizing: border-box;
+        }
+
+        .instruction {
+            position: fixed;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px 24px;
+            border-radius: 9999px;
+            border: 1px solid var(--border-color);
+            color: var(--accent-purple);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            animation: floatAnim 4s ease-in-out infinite;
+            backdrop-filter: blur(12px);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        @keyframes floatAnim {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-6px);
+            }
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 950px;
+            width: 100%;
+        }
+
+        @media (max-width: 700px) {
+            .grid-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--accent-purple);
+            border-radius: 16px;
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: var(--card-shadow);
+            min-height: 190px;
+            box-sizing: border-box;
+        }
+
+        .card:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.15);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.4;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .card .btn-open {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-smooth);
+        }
+
+        .card:hover .btn-open {
+            color: var(--accent-hover);
+            transform: translateX(4px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(6px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+            z-index: 100;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            max-width: 650px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 36px 32px;
+            box-sizing: border-box;
+            position: relative;
+            transform: translateY(20px) scale(0.96);
+            transition: var(--transition-smooth);
+            box-shadow: var(--modal-shadow);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f1f5f9;
+            border: none;
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-close:hover {
+            background: var(--accent-purple);
+            color: #ffffff;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .modal-content p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #334155;
+            margin-bottom: 16px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .modal-content ul, .modal-content ol {
+            margin: 0 0 20px 0;
+            padding-left: 20px;
+            color: #334155;
+        }
+
+        .modal-content li {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="instruction">Haga clic sobre las tarjetas para ampliar la información</div>
+
+    <div class="grid-cards">
+        
+        <!-- Card 1 -->
+        <div class="card" onclick="openModal('modal-1')">
+            <h3>3.3.4 ¿Cuándo es útil BASE?</h3>
+            <div class="btn-open">Ver detalle ↗</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card" onclick="openModal('modal-2')">
+            <h3>3.3.5 Tecnologías que aplican BASE o consistencia configurable</h3>
+            <div class="btn-open">Ver detalle ↗</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card" onclick="openModal('modal-3')">
+            <h3>3.3.6 Ventajas del enfoque BASE</h3>
+            <div class="btn-open">Ver detalle ↗</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card" onclick="openModal('modal-4')">
+            <h3>3.3.7 Riesgos o limitaciones</h3>
+            <div class="btn-open">Ver detalle ↗</div>
+        </div>
+
+    </div>
+
+    <!-- Modal 1 -->
+    <div class="modal-overlay" id="modal-1" onclick="closeModalOnOverlay(event, 'modal-1')">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-1')">✕</button>
+            <h3>3.3.4 ¿Cuándo es útil BASE?</h3>
+            <p>El modelo BASE resulta adecuado en escenarios como:</p>
+            <ul>
+                <li>Redes sociales.</li>
+                <li>Catálogos de productos.</li>
+                <li>Métricas de visitas.</li>
+                <li>Recomendaciones de contenido.</li>
+                <li>Sistemas globales de lectura intensiva.</li>
+                <li>Aplicaciones donde unos segundos de desfase son tolerables.</li>
+            </ul>
+            <p>En estos casos, la continuidad operativa suele ser más valiosa que la sincronización instantánea absoluta.</p>
+        </div>
+    </div>
+
+    <!-- Modal 2 -->
+    <div class="modal-overlay" id="modal-2" onclick="closeModalOnOverlay(event, 'modal-2')">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-2')">✕</button>
+            <h3>3.3.5 Tecnologías que aplican BASE o consistencia configurable</h3>
+            <p>Diversas plataformas NoSQL utilizan este enfoque total o parcialmente:</p>
+            <ul>
+                <li>Apache Cassandra.</li>
+                <li>Amazon DynamoDB.</li>
+                <li>Redis Cluster.</li>
+                <li>Azure Cosmos DB (niveles configurables).</li>
+                <li>Couchbase.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Modal 3 -->
+    <div class="modal-overlay" id="modal-3" onclick="closeModalOnOverlay(event, 'modal-3')">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-3')">✕</button>
+            <h3>3.3.6 Ventajas del enfoque BASE</h3>
+            <ol type="a">
+                <li><strong>Alta disponibilidad:</strong> el sistema continúa respondiendo durante fallos parciales.</li>
+                <li><strong>Menor latencia:</strong> no siempre requiere confirmación inmediata global.</li>
+                <li><strong>Escalabilidad horizontal:</strong> facilita expansión entre múltiples nodos y regiones.</li>
+                <li><strong>Resiliencia operativa:</strong> adecuado para plataformas 24/7 con usuarios globales.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Modal 4 -->
+    <div class="modal-overlay" id="modal-4" onclick="closeModalOnOverlay(event, 'modal-4')">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('modal-4')">✕</button>
+            <h3>3.3.7 Riesgos o limitaciones</h3>
+            <p>También deben considerarse ciertos desafíos:</p>
+            <ul>
+                <li>Lecturas temporales desactualizadas.</li>
+                <li>Conflictos entre actualizaciones concurrentes.</li>
+                <li>Mayor complejidad lógica en aplicaciones.</li>
+                <li>Necesidad de mecanismos de reconciliación.</li>
+            </ul>
+            <p>Por ello, no todos los sistemas deben adoptar consistencia eventual.</p>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function closeModalOnOverlay(event, id) {
+            if (event.target === document.getElementById(id)) {
+                closeModal(id);
+            }
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+    </script>
+
+</body>
+
+</html>
